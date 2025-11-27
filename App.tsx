@@ -22,6 +22,10 @@ const App: React.FC = () => {
   const [adminView, setAdminView] = useState<AppView>(AppView.DASHBOARD);
   const [apiKey, setApiKey] = useState<string>('');
   const [showSettings, setShowSettings] = useState(false);
+  // Login form state (kept at top-level to follow Hooks rules)
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   // Helper to add new booking from Chat
   const handleNewBooking = (bookingData: Omit<Appointment, 'id' | 'status'>) => {
@@ -68,63 +72,10 @@ const App: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button 
                 onClick={() => setAppMode('PUBLIC_CHAT')}
-          {/* Discreet staff login link */}
-          <footer className="mt-6 text-center w-full">
-            <button
-              onClick={() => setAppMode('LOGIN')}
-              className="text-xs text-gray-500 hover:text-primary-600 underline"
-            >
-              Staff Login
-            </button>
-          </footer>
                 className="flex items-center justify-center gap-2 bg-primary-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 <MessageSquare size={24} />
                 Talk to Assistant
-  // --- LOGIN SCREEN ---
-  if (appMode === 'LOGIN') {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      // simple client-side auth as requested (username: niket, password: @1234)
-      if (username.trim() === 'niket' && password === '@1234') {
-        setError('');
-        setAppMode('ADMIN');
-      } else {
-        setError('Invalid credentials');
-      }
-    };
-
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white">
-        <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">Staff Login</h2>
-          <p className="text-sm text-gray-500 mb-6">Enter your staff credentials to access the admin area.</p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">Username</label>
-              <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full p-3 border border-gray-200 rounded-lg" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1">Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border border-gray-200 rounded-lg" />
-            </div>
-            {error && <div className="text-sm text-red-600">{error}</div>}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-lg">Sign In</button>
-                <button type="button" onClick={() => setAppMode('LANDING')} className="text-sm text-gray-500 underline">Back</button>
-              </div>
-              <div className="text-xs text-gray-400">Contact owner for assistance</div>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
               </button>
               <button className="flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-200 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition-all">
                 View Services
@@ -166,6 +117,58 @@ const App: React.FC = () => {
             </div>
           </div>
         </main>
+
+        {/* Discreet staff login link */}
+        <footer className="mt-6 text-center w-full">
+          <button
+            onClick={() => setAppMode('LOGIN')}
+            className="text-xs text-gray-500 hover:text-primary-600 underline"
+          >
+            Staff Login
+          </button>
+        </footer>
+      </div>
+    );
+  }
+
+  // --- LOGIN SCREEN ---
+  if (appMode === 'LOGIN') {
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (loginUsername.trim() === 'niket' && loginPassword === '@1234') {
+        setLoginError('');
+        setLoginUsername('');
+        setLoginPassword('');
+        setAppMode('ADMIN');
+      } else {
+        setLoginError('Invalid credentials');
+      }
+    };
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white">
+        <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Staff Login</h2>
+          <p className="text-sm text-gray-500 mb-6">Enter your staff credentials to access the admin area.</p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-1">Username</label>
+              <input value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} className="w-full p-3 border border-gray-200 rounded-lg" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-1">Password</label>
+              <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="w-full p-3 border border-gray-200 rounded-lg" />
+            </div>
+            {loginError && <div className="text-sm text-red-600">{loginError}</div>}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-lg">Sign In</button>
+                <button type="button" onClick={() => setAppMode('LANDING')} className="text-sm text-gray-500 underline">Back</button>
+              </div>
+              <div className="text-xs text-gray-400">Contact owner for assistance</div>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }
